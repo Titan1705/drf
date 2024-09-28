@@ -1,8 +1,5 @@
 from django.db import models
 
-from django.db import models
-from users.models import User
-
 
 class Course(models.Model):
     title = models.CharField(
@@ -45,3 +42,43 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+
+
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ("cash", "Наличные"),
+        ("transfer", "Перевод на счет"),
+    ]
+
+    payment_date = models.DateField(verbose_name="Дата оплаты")
+    paid_course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Оплаченный курс",
+        null=True,
+        blank=True,
+    )
+    separately_paid_lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        verbose_name="Отдельно оплаченный урок",
+        null=True,
+        blank=True,
+    )
+    payment_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Сумма оплаты",
+    )
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        verbose_name="Способ оплаты",
+    )
+
+    def __str__(self):
+        return f"Платеж на сумму {self.payment_amount}"
+
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"

@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.models import User
+
 
 class Course(models.Model):
     title = models.CharField(
@@ -11,6 +13,10 @@ class Course(models.Model):
         upload_to="course_previews/", verbose_name="Фото", null=True, blank=True
     )
     description = models.TextField(verbose_name="Описание курса", null=True, blank=True)
+
+    owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Владелец"
+    )
 
     def __str__(self):
         return self.title
@@ -35,6 +41,9 @@ class Lesson(models.Model):
         upload_to="lesson_previews/", verbose_name="Фото", null=True, blank=True
     )
     video_url = models.URLField(verbose_name="Ссылка на видео", null=True, blank=True)
+    owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Владелец"
+    )
 
     def __str__(self):
         return self.title

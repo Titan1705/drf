@@ -1,27 +1,35 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework import serializers
 
-from courses.models import Course, Lesson, Payment
+from courses.models import Course, Lesson, Payment, Subscription
+from courses.validators import validate_youtube_link
 
 
-class LessonSerializer(ModelSerializer):
+class LessonSerializer(serializers.ModelSerializer):
+    video_url = serializers.CharField(validators=[validate_youtube_link])
+
     class Meta:
         model = Lesson
         fields = "__all__"
 
 
-class CourseSerializer(ModelSerializer):
-    lessons_count = SerializerMethodField()
+class CourseSerializer(serializers.ModelSerializer):
+    lessons_count = serializers.SerializerMethodField()
+    subscription = serializers.SerializerMethodField()
+
+    def get_subscription(self, obj):
+        user = self.context["request"].user
+        return Subscription.objects.filter(user=user, course=obj).exists()
 
     def get_lessons_count(self, course):
         return course.lessons.count()
 
     class Meta:
         model = Course
-        fields = ("id", "title", "lessons_count")
+        fields = ("id", "title", "lessons_count", "owner", "subscription")
 
 
-class CourseDetailSerializer(ModelSerializer):
-    lessons_count = SerializerMethodField()
+class CourseDetailSerializer(serializers.ModelSerializer):
+    lessons_count = serializers.SerializerMethodField()
     lessons = LessonSerializer(many=True, read_only=True)
 
     def get_lessons_count(self, course):
@@ -32,7 +40,7 @@ class CourseDetailSerializer(ModelSerializer):
         fields = ("title", "lessons_count", "lessons")
 
 
-class PaymentSerializer(ModelSerializer):
+class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = [
@@ -43,3 +51,12 @@ class PaymentSerializer(ModelSerializer):
             "payment_amount",
             "payment_method",
         ]
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = (
+            "user",
+            "course",
+        )

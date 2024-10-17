@@ -8,7 +8,7 @@ from courses.views import (
     LessonUpdateApiView,
     LessonDestroyApiView,
     PaymentListView,
-    SubscriptionView,
+    SubscriptionView, CoursePaymentCreateAPIView,
 )
 
 app_name = "courses"
@@ -42,6 +42,10 @@ urlpatterns = [
     ),
     path("payments/", PaymentListView.as_view(), name="payment-list"),
     path("<int:course_id>/subscriptions/", SubscriptionView.as_view(), name="subscription_view"),
+    path(
+        "<int:course_id>/payment/", CoursePaymentCreateAPIView.as_view(), name="course_payment"
+    ),
+
     path("", include(router.urls)),
 ]
 

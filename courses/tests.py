@@ -105,10 +105,7 @@ class SubscriptionTestCase(APITestCase):
     def test_subscription_post(self):
         """Тест подписки на курс."""
         url = reverse('courses:subscription_view', args=(self.course.pk,))
-        data = {
-            "user": self.user.pk,
-            "course_id": self.course.pk
-        }
+        data = {"course_id": self.course.pk}
 
         self.assertTrue(Course.objects.filter(pk=self.course.pk).exists())
         response = self.client.post(url, data)
@@ -132,10 +129,7 @@ class SubscriptionTestCase(APITestCase):
     def test_subscription_non_existent_course(self):
         """Тест подписки на несуществующий курс."""
         url = reverse('courses:subscription_view', args=(123123,))
-        data = {
-            "user": self.user.pk,
-            "course_id": 123123
-        }
+        data = {"course_id": 123123}
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, 404)
